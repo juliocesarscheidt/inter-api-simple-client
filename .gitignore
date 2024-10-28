@@ -1,0 +1,8 @@
+creds.txt
+*.crt
+*.key
+*.pem
+__pycache__
+*.pyc
+*.pyo
+*.pyd
