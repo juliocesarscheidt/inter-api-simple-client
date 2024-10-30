@@ -34,13 +34,29 @@ python sample_client_charge_pix.py \
   --description "<DESCRICAO_PIX>" \
   --debtorname "<NOME_DEVEDOR>" \
   --debtorcpf "<CPF_DEVEDOR>"
+
+python sample_client_charge_ticket.py \
+  --amount <VALOR_BOLETO> \
+  --duedate "<DATA_VENCIMENTO_BOLETO>" \
+  --expirationdays <DIAS_EXPIRACAO_BOLETO> \
+  --payercpfcnpj "<CPF_CNPJ_PAGADOR>" \
+  --payertype "<TIPO_PAGADOR>" \
+  --payername "<NOME_PAGADOR>" \
+  --payeraddress "<ENDERECO_PAGADOR>" \
+  --payercity "<CIDADE_PAGADOR>" \
+  --payeruf "<UF_PAGADOR>" \
+  --payercep "<CEP_PAGADOR>"
 ```
 
 Implemented endpoints:
 
+> Balance and statements
+
 - [Fetch balance](https://developers.inter.co/references/banking#tag/Saldo/operation/Saldo)
 
 - [Fetch statements](https://developers.inter.co/references/banking#tag/Extrato/operation/Extrato)
+
+> PIX
 
 - [Pay with PIX](https://developers.inter.co/references/banking#tag/Pix-Pagamento/operation/realizarPagamentoPix)
 
@@ -49,3 +65,11 @@ Implemented endpoints:
 - [Charge with PIX](https://developers.inter.co/references/pix#tag/Cobranca-Imediata/paths/~1cob~1%7Btxid%7D/put)
 
 - [Fetch PIX charge](https://developers.inter.co/references/pix#tag/Cobranca-Imediata/paths/~1cob~1%7Btxid%7D/get)
+
+> Charge (ticket)
+
+- [Charge](https://developers.inter.co/references/cobranca-bolepix#tag/Cobranca/operation/emitirCobrancaAsync)
+
+- [Fetch charge](https://developers.inter.co/references/cobranca-bolepix#tag/Cobranca/operation/recuperarCobrancaDetalhada)
+
+- [Fetch charge PDF](https://developers.inter.co/references/cobranca-bolepix#tag/Cobranca/operation/obterPdfCobranca)

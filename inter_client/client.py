@@ -1,8 +1,8 @@
 import json
 import time
-import requests
 import string
 import random
+import requests
 
 INTER_BASE_URL = "https://cdpj.partners.bancointer.com.br"
 
@@ -94,7 +94,7 @@ class InterClient():
                         cert=(self.cert_path, self.cert_key_path))
     return response.json()
 
-  def send_pix_charge(self, pix_receiver_key: str, pix_amount: str, pix_description: str, pix_debtor: dict = None, expiration_time: int=3600):
+  def send_pix_charge(self, pix_receiver_key: str, pix_amount: str, pix_description: str, pix_debtor: dict=None, expiration_time: int=3600):
     token = self.get_token("cob.write")
     request_body = {
       "calendario": {
@@ -123,6 +123,61 @@ class InterClient():
   def get_pix_charge(self, txid):
     token = self.get_token("cob.read")
     response = requests.get(f"{self.base_url}/pix/v2/cob/{txid}",
+                        headers=self.make_headers(token),
+                        cert=(self.cert_path, self.cert_key_path))
+    return response.json()
+
+  def send_charge(self, ticket_number: str, ticket_amount: float, due_date: str, expiration_days: int, ticket_payer: dict):
+    token = self.get_token("boleto-cobranca.write")
+    # ticket_payer example
+    """
+    {
+      "cpfCnpj": "<cnpj do pagador>",
+      "tipoPessoa": "FISICA",
+      "nome": "nome do pagador",
+      "endereco": "<endereço do pagador>",
+      "cidade": "<cidade do pagador>",
+      "uf": "<UF do pagador>",
+      "cep": "<CEP do pagador>",
+      # optional fields
+      "email": "<email do pagador>",
+      "ddd": "<DDD do pagador>",
+      "telefone": "<telefone do pagador>",
+      "numero": "<numero no endereço do pagador>",
+      "complemento": "Casa",
+      "bairro": "<bairro do pagador>",
+    }
+    """
+    request_body = {
+      "seuNumero": ticket_number,
+      "valorNominal": ticket_amount,
+      "dataVencimento": due_date,
+      "numDiasAgenda": expiration_days,
+      "pagador": ticket_payer,
+      "desconto": None, # optional, it could be implemented further
+      "multa": None, # optional, it could be implemented further
+      "mora": None, # optional, it could be implemented further
+      "mensagem": None, # optional, it could be implemented further
+      "beneficiarioFinal": None, # optional, it could be implemented further
+      "formasRecebimento": ["BOLETO", "PIX"],
+    }
+    response = requests.post(f"{self.base_url}/cobranca/v3/cobrancas",
+                        headers=self.make_headers(token),
+                        cert=(self.cert_path, self.cert_key_path),
+                        data=json.dumps(request_body))
+    data = response.json()
+    return data
+
+  def get_charge(self, request_code):
+    token = self.get_token("boleto-cobranca.read")
+    response = requests.get(f"{self.base_url}/cobranca/v3/cobrancas/{request_code}",
+                        headers=self.make_headers(token),
+                        cert=(self.cert_path, self.cert_key_path))
+    return response.json()
+
+  def get_charge_pdf(self, request_code):
+    token = self.get_token("boleto-cobranca.read")
+    response = requests.get(f"{self.base_url}/cobranca/v3/cobrancas/{request_code}/pdf",
                         headers=self.make_headers(token),
                         cert=(self.cert_path, self.cert_key_path))
     return response.json()
