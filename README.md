@@ -11,11 +11,18 @@ pip install -r requirements.txt
 ## Setup environment variables for the client
 
 ```bash
+# linux
 export CLIENT_ID="" # Inter integration client id
 export CLIENT_SECRET="" # Inter integration client secret
 export CERT_PATH="" # Inter integration certificate (.crt) path
 export CERT_KEY_PATH="" # Inter integration key (.key) path
 export ACCOUNT="" # Inter account - required if there are multiple accounts
+# windows
+set CLIENT_ID=
+set CLIENT_SECRET=
+set CERT_PATH=
+set CERT_KEY_PATH=
+set ACCOUNT=
 ```
 
 ## Running sample clients

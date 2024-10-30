@@ -165,8 +165,7 @@ class InterClient():
                         headers=self.make_headers(token),
                         cert=(self.cert_path, self.cert_key_path),
                         data=json.dumps(request_body))
-    data = response.json()
-    return data
+    return response.json()
 
   def get_charge(self, request_code):
     token = self.get_token("boleto-cobranca.read")

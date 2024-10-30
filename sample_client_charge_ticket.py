@@ -1,7 +1,6 @@
 import os
 import random
 import argparse
-from pathlib import Path
 from inter_client.client import InterClient
 from base64 import b64decode
 
@@ -50,7 +49,7 @@ if __name__ in "__main__":
 
   request_code = charge.get('codigoSolicitacao')
   charge_status = interClient.get_charge(request_code)
-  print(charge_status)
+  # print(charge_status)
   print("codigoBarras", charge_status.get("boleto").get("codigoBarras"))
   print("linhaDigitavel", charge_status.get("boleto").get("linhaDigitavel"))
   print("pixCopiaECola", charge_status.get("pix").get("pixCopiaECola"))
