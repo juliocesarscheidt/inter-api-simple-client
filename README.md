@@ -25,7 +25,19 @@ set CERT_KEY_PATH=
 set ACCOUNT=
 ```
 
-## Running sample clients
+## Using client
+
+> Example to send a PIX payment
+
+```python
+from inter_client.client import InterClient
+
+interClient = InterClient(CERT_PATH, CERT_KEY_PATH, CLIENT_ID, CLIENT_SECRET, ACCOUNT)
+
+interClient.send_pix_payment("<ALGUMA_CHAVE_PIX>", "<VALOR_PIX>", "<VALOR_PIX>")
+```
+
+## Running sample clients through CLI
 
 ```bash
 python sample_client_fetch_balance.py
