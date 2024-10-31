@@ -48,7 +48,7 @@ class InterClient():
     return token
 
   @request_retry
-  def get_balance(self, search_date: str):
+  def get_balance(self, search_date: str=None):
     token = self.get_token("extrato.read")
     response = requests.get(f"{self.base_url}/banking/v2/saldo",
                         params={"dataSaldo": search_date},

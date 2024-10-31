@@ -20,5 +20,5 @@ if __name__ in "__main__":
   balance_data = interClient.get_balance(today)
   print(balance_data)
 
-  statements_data = interClient.get_statements(yesterday, yesterday)
+  statements_data = interClient.get_statements(yesterday, today)
   print(statements_data)
