@@ -7,6 +7,7 @@ from base64 import b64decode
 from datetime import datetime, timedelta
 from flask import Flask, Blueprint, jsonify, request, Response
 from flask_mysqldb import MySQL
+from flask_cors import CORS
 from data import buscar_empresa_por_cpf_cnpj
 
 
@@ -18,15 +19,18 @@ ACCOUNT = os.environ.get("ACCOUNT", None)
 API_BASE_URL = "https://cdpj.partners.bancointer.com.br"
 
 
-boletos = Blueprint('boletos', __name__)
+boletos = Blueprint('boletos', __name__, url_prefix='/v1/boletos')
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/v1/boletos/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "OPTIONS"]}})
+app.config["CORS_HEADERS"] = ["Content-Type", "Authorization", "Content-Disposition", "Content-Length"]
 
-app.config['MYSQL_HOST'] = '127.0.0.1'
-app.config['MYSQL_PORT'] = 3306
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'admin' # weakest password ever - local only
-app.config['MYSQL_DB'] = 'boletos'
+
+app.config["MYSQL_HOST"] = "127.0.0.1"
+app.config["MYSQL_PORT"] = 3306
+app.config["MYSQL_USER"] = "root"
+app.config["MYSQL_PASSWORD"] = "admin" # weakest password ever - local only
+app.config["MYSQL_DB"] = "boletos"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor" # para retornar os dados como dicionarios
 
 """
@@ -55,9 +59,24 @@ insert into boletos.empresa (nome, cpf_cnpj, tipo_pessoa, telefone, endereco, ci
 mysql = MySQL(app)
 token_cache = {}
 
+def intercept_options(f):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    if request.method == "OPTIONS":
+      response = jsonify({"status": "ok"})
+      response.headers.add("Access-Control-Allow-Origin", "*")
+      response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS")
+      response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization,Content-Disposition,Content-Length")
+      return response, 200
+    return f(*args, **kwargs)
+  return decorated
+
 def token_required(f):
   @wraps(f)
   def decorated(*args, **kwargs):
+    if 'authorization' not in request.headers:
+      return jsonify({"erro": "Token de acesso necessario"}), 401
+
     token_header = request.headers['authorization']
     jwt_token = token_header.split(" ")[1]
     # validate token, extract data, etc
@@ -165,21 +184,22 @@ def cancelar_cobranca(token, codigo_solicitacao, motivo):
     return False
 
 
-@boletos.route('/boletos', methods=['POST'])
+@boletos.route('/', methods=['POST', 'OPTIONS'])
+@intercept_options
 @token_required
 def gerar_boletos(token_data):
   payload = request.json
   print("payload", payload)
-  
+
   valor_servico = payload["valor_servico"] if "valor_servico" in payload else None
   cpf_cnpj = payload["cpf_cnpj"] if "cpf_cnpj" in payload else None
-  
+
   if valor_servico is None or cpf_cnpj is None:
     return jsonify({"erro": "Necessario informar os parametros: valor_servico, cpf_cnpj"}), 400
 
   scopes = token_data.get('scopes', [])
   print("token_data", token_data)
-  
+
   if 'boleto-cobranca.write' not in scopes:
     return jsonify({"erro": "Permissao necessaria: boleto-cobranca.write"}), 403
 
@@ -192,7 +212,7 @@ def gerar_boletos(token_data):
   # Verifica se os boletos podem ser gerados
   if hoje.day > 30:
     return jsonify({"erro": "Boletos so podem ser gerados ate o dia 30 de cada mes"}), 403
-  
+
   empresa = None
   with mysql.connection.cursor() as cursor:
     empresa = buscar_empresa_por_cpf_cnpj(cursor, cpf_cnpj)
@@ -235,14 +255,15 @@ def gerar_boletos(token_data):
   }), 200
 
 
-@boletos.route('/boletos/<codigo_solicitacao>', methods=['GET'])
+@boletos.route('/<codigo_solicitacao>', methods=['GET', 'OPTIONS'])
+@intercept_options
 @token_required
 def recuperar_cobranca(token_data, codigo_solicitacao):
   print("codigo_solicitacao", codigo_solicitacao)
 
   scopes = token_data.get('scopes', [])
   print("token_data", token_data)
-  
+
   if 'boleto-cobranca.read' not in scopes:
     return jsonify({"erro": "Permissao necessaria: boleto-cobranca.read"}), 403
 
@@ -270,14 +291,15 @@ def recuperar_cobranca(token_data, codigo_solicitacao):
     return jsonify({"erro": f"Erro ao buscar cobranca: {e}"}), 500
 
 
-@boletos.route('/boletos/<codigo_solicitacao>/pdf', methods=['GET'])
+@boletos.route('/<codigo_solicitacao>/pdf', methods=['GET', 'OPTIONS'])
+@intercept_options
 @token_required
 def recuperar_boleto(token_data, codigo_solicitacao):
   print("codigo_solicitacao", codigo_solicitacao)
 
   scopes = token_data.get('scopes', [])
   print("token_data", token_data)
-  
+
   if 'boleto-cobranca.read' not in scopes:
     return jsonify({"erro": "Permissao necessaria: boleto-cobranca.read"}), 403
 
@@ -303,14 +325,15 @@ def recuperar_boleto(token_data, codigo_solicitacao):
     return jsonify({"erro": f"Erro ao decodificar PDF: {e}"}), 500
 
 
-@boletos.route('/boletos/<codigo_solicitacao>/cancelar', methods=['PUT'])
+@boletos.route('/<codigo_solicitacao>/cancelar', methods=['PUT', 'OPTIONS'])
+@intercept_options
 @token_required
 def cancelar_boleto(token_data, codigo_solicitacao):
   print("codigo_solicitacao", codigo_solicitacao)
 
   scopes = token_data.get('scopes', [])
   print("token_data", token_data)
-  
+
   if 'boleto-cobranca.write' not in scopes:
     return jsonify({"erro": "Permissao necessaria: boleto-cobranca.write"}), 403
 
