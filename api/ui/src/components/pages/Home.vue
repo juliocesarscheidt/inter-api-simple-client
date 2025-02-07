@@ -8,7 +8,7 @@
           type="text"
           class="form-control"
           v-model="codigoSolicitacao"
-          placeholder="Código da solicitação"
+          placeholder="Identificação do boleto"
         />
 
         <div class="flex flex-row flex-space-between mt-4">
