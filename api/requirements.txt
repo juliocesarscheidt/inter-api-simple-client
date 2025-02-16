@@ -1,5 +1,0 @@
-requests==2.31.0
-Flask==3.1.0
-Flask-MySQLdb==2.0.0
-Flask-RESTful==0.3.9
-Flask-Cors==5.0.0
