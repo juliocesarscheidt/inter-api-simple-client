@@ -35,7 +35,7 @@ if __name__ in "__main__":
         CERT_PATH, CERT_KEY_PATH, CLIENT_ID, CLIENT_SECRET, ACCOUNT
     )
 
-    pix_payment = interClient.send_pix_payment(
+    pix_payment = interClient.send_pix_payment_by_key(
         args.receiverkey, args.amount, args.description
     )
     print(pix_payment)

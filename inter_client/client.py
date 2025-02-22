@@ -81,7 +81,7 @@ class InterClient:
         return response.json()
 
     @request_retry
-    def send_pix_payment(
+    def send_pix_payment_by_key(
         self, pix_receiver_key: str, pix_amount: str, pix_description: str
     ):
         token = self.get_token("pagamento-pix.write")
@@ -100,6 +100,28 @@ class InterClient:
             data=json.dumps(request_body),
         )
         return response.json()
+
+    @request_retry
+    def send_pix_payment_by_copy_and_paste_code(
+        self, pix_copy_and_paste_code: str, pix_amount: str, pix_description: str
+    ):
+        token = self.get_token("pagamento-pix.write")
+        request_body = {
+            "valor": pix_amount,
+            "descricao": pix_description,
+            "destinatario": {
+                "tipo": "PIX_COPIA_E_COLA",
+                "pixCopiaECola": pix_copy_and_paste_code,
+            },
+        }
+        response = requests.post(
+            f"{self.base_url}/banking/v2/pix",
+            headers=self.build_headers(token),
+            cert=(self.cert_path, self.cert_key_path),
+            data=json.dumps(request_body),
+        )
+        return response.json()
+
 
     @request_retry
     def get_pix_payment(self, pix_code: str):

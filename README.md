@@ -34,7 +34,7 @@ from inter_client.client import InterClient
 
 interClient = InterClient(CERT_PATH, CERT_KEY_PATH, CLIENT_ID, CLIENT_SECRET, ACCOUNT)
 
-interClient.send_pix_payment("<ALGUMA_CHAVE_PIX>", "<VALOR_PIX>", "<VALOR_PIX>")
+interClient.send_pix_payment_by_key("<ALGUMA_CHAVE_PIX>", "<VALOR_PIX>", "<VALOR_PIX>")
 ```
 
 ## Running sample clients through CLI
@@ -42,8 +42,13 @@ interClient.send_pix_payment("<ALGUMA_CHAVE_PIX>", "<VALOR_PIX>", "<VALOR_PIX>")
 ```bash
 python sample_client_fetch_balance.py
 
-python sample_client_send_pix.py \
+python sample_client_send_pix_by_key.py \
   --receiverkey "<ALGUMA_CHAVE_PIX>" \
+  --amount "<VALOR_PIX>" \
+  --description "<DESCRICAO_PIX>"
+
+python sample_client_send_pix_by_copy_and_paste_code.py \
+  --receivercode "<ALGUMA_CODIGO_COPIA_E_COLA_PIX>" \
   --amount "<VALOR_PIX>" \
   --description "<DESCRICAO_PIX>"
 
